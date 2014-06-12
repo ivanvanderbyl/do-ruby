@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+irb = RUBY_PLATFORM =~ /(:?mswin|mingw)/ ? 'irb.bat' : 'irb'
+
+lib = File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require 'optparse'
+require 'irb'
+require 'irb/completion'
+require 'digital_ocean'
+
+module ConsoleMethods
+  def whoami
+    "ivan"
+  end
+end
+
+class Console
+  def start
+    OptionParser.new do |opt|
+      opt.banner = "Usage: do-console [options]"
+      opt.on("--api-key", 'API Key') { |v| options[:api_key] = v }
+      opt.parse!(ARGV)
+    end
+
+    IRB::ExtendCommandBundle.send :include, ConsoleMethods
+    IRB.start
+  end
+end
+
+Console.new.start
